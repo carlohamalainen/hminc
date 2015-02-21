@@ -1,6 +1,11 @@
 # hminc
 
-Haskell MINC library. Currently pre-alpha. Heavily based on https://github.com/ian-ross/hnetcdf
+Haskell MINC library. Currently pre-alpha.
+
+Heavily based on [hnetcdf](https://github.com/ian-ross/hnetcdf). In
+particular, code in ```Data.Minc.Raw.Base```, ```Data.Minc.Types```,
+and ```Data.Minc.Utils``` is *very* similar to the equivalent files
+in hnetcdf.
 
 Information about the MINC file format: http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC
 

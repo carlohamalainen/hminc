@@ -1,0 +1,43 @@
+name:                hminc
+version:             0.1.0.0
+synopsis:            Haskell MINC library.
+description:
+  Bindings to the MINC library along with a higher-level Haskell
+  interface for working with neuroimaging data.
+homepage:            https://github.com/carlohamalainen/hminc
+license:             BSD3
+license-file:        LICENSE
+author:              Carlo Hamalainen
+maintainer:          carlo@carlo-hamalainen.net
+copyright:           Copyright (2014) Carlo Hamalainen
+category:            Data
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+source-repository head
+  type: git
+  location: https://github.com/carlohamalainen/hminc
+
+library
+  exposed-modules:     Data.Minc
+                       Data.Minc.Types
+                       Data.Minc.Utils
+                       Data.Minc.Raw.Base
+
+  -- other-modules:
+  -- other-extensions:
+  build-depends:       base >=4.6 && <4.7
+                     , transformers
+                     , either
+  -- hs-source-dirs:
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  build-tools:         c2hs
+  extra-libraries:     minc2
+
+Executable example1
+  hs-source-dirs: examples
+  main-is: example1.hs
+  build-depends: hminc
+               , base >=4.6 && <4.7
