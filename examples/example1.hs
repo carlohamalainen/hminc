@@ -15,13 +15,16 @@ main = do
     (_, volumePtr) <- miopen_volume small (mincIOMode ReadMode)
     print volumePtr
 
-    dimensionCount <- runAccess "foo" small $ chk $ miget_volume_dimension_count volumePtr Minc_Dim_Class_Any Minc_Dim_Attr_All
+    dimensionCount <- runAccess "miget_volume_dimension_count " small $ chk $ miget_volume_dimension_count volumePtr Minc_Dim_Class_Any Minc_Dim_Attr_All
     print ("dimensionCount", dimensionCount)
 
     let Right dimensionCount' = dimensionCount
 
-    foo <- runAccess "bar" small $ chk $ miget_volume_dimensions volumePtr Minc_Dim_Class_Any Minc_Dim_Attr_All Minc_Dim_Order_File dimensionCount'
-    print foo
+    Right dimensionPtrs <- runAccess "miget_volume_dimensions " small $ chk $ miget_volume_dimensions volumePtr Minc_Dim_Class_Any Minc_Dim_Attr_All Minc_Dim_Order_File dimensionCount'
+    print dimensionPtrs
+
+    Right dimensionSizes <- runAccess "miget_dimension_sizes " small $ chk $ miget_dimension_sizes dimensionPtrs dimensionCount'
+    print dimensionSizes
 
     y <- miclose_volume volumePtr
     print y

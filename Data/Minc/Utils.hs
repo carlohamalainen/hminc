@@ -23,6 +23,12 @@ allocaDims = allocaArray mincMaxDims
 peekDims :: Ptr (Ptr ()) -> IO [Ptr ()]
 peekDims = peekArray mincMaxDims
 
+allocaDimSizes :: (Ptr CULLong -> IO b) -> IO b
+allocaDimSizes = allocaArray mincMaxDims
+
+peekDimSizes :: Ptr CULLong -> IO [Int]
+peekDimSizes = liftM (map fromIntegral) . peekArray mincMaxDims
+
 -- TODO More here.
 mincMaxDims :: Int
 mincMaxDims = 5

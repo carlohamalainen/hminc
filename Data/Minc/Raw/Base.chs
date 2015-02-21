@@ -30,6 +30,12 @@ toCInt = toEnum . fromEnum
 toCUInt :: Enum a => a -> CUInt
 toCUInt = toEnum . fromEnum
 
+toCULLong :: Enum a => a -> CULLong
+toCULLong = toEnum . fromEnum
+
+-- toCULongLong :: Enum a => a -> CULongLong
+-- toCULongLong = toEnum . fromEnum
+
 -- extern int miget_volume_dimension_count(mihandle_t volume, midimclass_t dimclass, midimattr_t attr, int *number_of_dimensions);
 {#fun miget_volume_dimension_count{ id `Ptr ()', toCInt `MincDimClass', toCUInt `MincDimAttribute', alloca- `Int' peekIntConv* } -> `Int' #}
 
@@ -54,3 +60,7 @@ extern int miset_slice_scaling_flag(mihandle_t volume,
 --                                    midimhandle_t dimensions[]);
 {#fun miget_volume_dimensions{ id `Ptr ()', toCInt `MincDimClass', toCUInt `MincDimAttribute',
                                toCInt `MincDimOrder', toCInt `Int', allocaDims- `[Ptr ()]' peekDims* } -> `Int' #}
+
+-- int miget_dimension_sizes(const midimhandle_t dimensions[], misize_t array_length,
+--                                 misize_t sizes[]);
+{#fun miget_dimension_sizes{ withArray* `[Ptr ()]', toCULLong `Int', allocaDimSizes- `[Int]' peekDimSizes* } -> `Int' #}
