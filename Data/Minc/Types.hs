@@ -100,11 +100,12 @@ instance Enum MincType where
 
 -- | Minc error types.
 data MincError = MincError String Int String FilePath
-             | MincInvalidArgs String
-             | MincInvalidType          Int
-             | MincInvalidDimClass      Int
-             | MincInvalidDimAttribute  Int
-             deriving (Show, Typeable)
+               | MincInvalidArgs String
+               | MincInvalidType          Int
+               | MincInvalidDimClass      Int
+               | MincInvalidDimAttribute  Int
+               | MincInvalidDimOrder      Int
+               deriving (Show, Typeable)
 
 instance Exception MincError
 
@@ -113,12 +114,16 @@ mincIOMode ReadMode  = 1 -- #define MI2_OPEN_READ 0x0001
 mincIOMode WriteMode = 2 -- #define MI2_OPEN_RDWR 0x0002
 mincIOMode _ = throw (MincInvalidArgs "IO mode")
 
-{-
+-- | Minc dimension order.
+data MincDimOrder = MincDimOrderFile        -- ^ File order.
+                  | MincDimOrderApparent    -- ^ Apparent order.
+                  deriving (Show, Typeable)
 
-TODO?
+instance Enum MincDimOrder where
+    fromEnum MincDimOrderFile       = 0
+    fromEnum MincDimOrderApparent   = 1
 
-typedef enum {
-  MI_DIMORDER_FILE      = 0,
-  MI_DIMORDER_APPARENT  = 1
-} miorder_t;
--}
+    toEnum n = case n of
+        0 -> MincDimOrderFile
+        1 -> MincDimOrderApparent
+        _    -> throw (MincInvalidDimOrder n)
