@@ -115,15 +115,15 @@ mincIOMode WriteMode = 2 -- #define MI2_OPEN_RDWR 0x0002
 mincIOMode _ = throw (MincInvalidArgs "IO mode")
 
 -- | Minc dimension order.
-data MincDimOrder = MincDimOrderFile        -- ^ File order.
-                  | MincDimOrderApparent    -- ^ Apparent order.
+data MincDimOrder = Minc_Dim_Order_File        -- ^ File order.
+                  | Minc_Dim_Order_Apparent    -- ^ Apparent order.
                   deriving (Show, Typeable)
 
 instance Enum MincDimOrder where
-    fromEnum MincDimOrderFile       = 0
-    fromEnum MincDimOrderApparent   = 1
+    fromEnum Minc_Dim_Order_File       = 0
+    fromEnum Minc_Dim_Order_Apparent   = 1
 
     toEnum n = case n of
-        0 -> MincDimOrderFile
-        1 -> MincDimOrderApparent
+        0 -> Minc_Dim_Order_File
+        1 -> Minc_Dim_Order_Apparent
         _    -> throw (MincInvalidDimOrder n)

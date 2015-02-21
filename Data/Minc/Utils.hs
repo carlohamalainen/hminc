@@ -9,6 +9,24 @@ import Control.Monad.IO.Class
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Either
 
+import Foreign hiding (unsafePerformIO)
+import Foreign.C
+import System.IO.Unsafe (unsafePerformIO)
+import Control.Monad (liftM)
+
+peekIntConv :: (Storable a, Integral a, Integral b) => Ptr a -> IO b
+peekIntConv = liftM fromIntegral . peek
+
+allocaDims :: (Ptr (Ptr ()) -> IO b) -> IO b
+allocaDims = allocaArray mincMaxDims
+
+peekDims :: Ptr (Ptr ()) -> IO [Ptr ()]
+peekDims = peekArray mincMaxDims
+
+-- TODO More here.
+mincMaxDims :: Int
+mincMaxDims = 5
+
 type MincIO a = IO (Either MincError a)
 
 type Access a = ReaderT (String, FilePath) (EitherT MincError IO) a
@@ -57,6 +75,6 @@ chk act = do
     let st  = status res
         val = proj   res
     (f, p) <- ask
-    lift $ if st == 0
-      then right val
-      else left $ MincError f st "FIXME - look up error" p
+    lift $ if st == (-1)
+      then left $ MincError f st "FIXME - look up error" p
+      else right val

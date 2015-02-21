@@ -12,22 +12,16 @@ main :: IO ()
 main = do
     let small = "/scratch/small.mnc"
 
-    x <- miopen_volume small (mincIOMode ReadMode)
+    (_, volumePtr) <- miopen_volume small (mincIOMode ReadMode)
+    print volumePtr
 
-    dimensionCount <- runAccess "foo" small $ chk $ miget_volume_dimension_count (snd x) Minc_Dim_Class_Any Minc_Dim_Attr_All
+    dimensionCount <- runAccess "foo" small $ chk $ miget_volume_dimension_count volumePtr Minc_Dim_Class_Any Minc_Dim_Attr_All
+    print ("dimensionCount", dimensionCount)
 
-    {-
-    self.ndims = ndims.value
-    self.ndims_misize_t = misize_t(ndims.value)
-    r = libminc.miget_volume_dimensions(
-        self.volPointer, MI_DIMCLASS_ANY,
-        MI_DIMATTR_ALL, MI_DIMORDER_APPARENT,
-        ndims, self.dims)
-    -}
+    let Right dimensionCount' = dimensionCount
 
-    y <- miclose_volume (snd x)
+    foo <- runAccess "bar" small $ chk $ miget_volume_dimensions volumePtr Minc_Dim_Class_Any Minc_Dim_Attr_All Minc_Dim_Order_File dimensionCount'
+    print foo
 
-    print x
+    y <- miclose_volume volumePtr
     print y
-    print dimensionCount
-

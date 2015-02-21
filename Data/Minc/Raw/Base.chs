@@ -12,9 +12,6 @@ import Control.Monad (liftM)
 
 #include <minc2.h>
 
-peekIntConv :: (Storable a, Integral a, Integral b) => Ptr a -> IO b
-peekIntConv = liftM fromIntegral . peek
-
 -- VOLUME FUNCTIONS
 
 {-
@@ -55,8 +52,5 @@ extern int miset_slice_scaling_flag(mihandle_t volume,
 -- extern int miget_volume_dimensions(mihandle_t volume, midimclass_t dimclass, midimattr_t attr,
 --                                    miorder_t order, int array_length,
 --                                    midimhandle_t dimensions[]);
--- {#fun miget_volume_dimensions{ id `Ptr ()', `Int', `Int',
---
---
---
--- alloca- `Int' peekIntConv* } -> `Int' #}
+{#fun miget_volume_dimensions{ id `Ptr ()', toCInt `MincDimClass', toCUInt `MincDimAttribute',
+                               toCInt `MincDimOrder', toCInt `Int', allocaDims- `[Ptr ()]' peekDims* } -> `Int' #}
