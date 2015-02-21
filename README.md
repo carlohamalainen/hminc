@@ -1,0 +1,2 @@
+# hminc
+Haskell MINC library
