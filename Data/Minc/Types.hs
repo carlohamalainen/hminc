@@ -105,6 +105,7 @@ data MincError = MincError String Int String FilePath
                | MincInvalidDimClass      Int
                | MincInvalidDimAttribute  Int
                | MincInvalidDimOrder      Int
+               | MincInvalidVoxelOrder    Int
                deriving (Show, Typeable)
 
 instance Exception MincError
@@ -127,3 +128,17 @@ instance Enum MincDimOrder where
         0 -> Minc_Dim_Order_File
         1 -> Minc_Dim_Order_Apparent
         _    -> throw (MincInvalidDimOrder n)
+
+-- | Minc voxel order.
+data MincVoxelOrder = Minc_Voxel_Order_File        -- ^ File order.
+                    | Minc_Voxel_Order_Apparent    -- ^ Apparent order.
+                    deriving (Show, Typeable)
+
+instance Enum MincVoxelOrder where
+    fromEnum Minc_Voxel_Order_File       = 0
+    fromEnum Minc_Voxel_Order_Apparent   = 1
+
+    toEnum n = case n of
+        0 -> Minc_Voxel_Order_File
+        1 -> Minc_Voxel_Order_Apparent
+        _    -> throw (MincInvalidVoxelOrder n)
