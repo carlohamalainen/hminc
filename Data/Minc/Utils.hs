@@ -29,6 +29,12 @@ allocaDimSizes = allocaArray mincMaxDims
 peekDimSizes :: Ptr CULLong -> IO [Int]
 peekDimSizes = liftM (map fromIntegral) . peekArray mincMaxDims
 
+allocaSeparations :: (Ptr CDouble -> IO b) -> IO b
+allocaSeparations = allocaArray mincMaxDims
+
+peekSeparations :: Ptr CDouble -> IO [CDouble]
+peekSeparations = peekArray mincMaxDims
+
 -- TODO More here.
 mincMaxDims :: Int
 mincMaxDims = 5

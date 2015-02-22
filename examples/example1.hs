@@ -20,11 +20,22 @@ main = do
 
     let Right dimensionCount' = dimensionCount
 
-    Right dimensionPtrs <- runAccess "miget_volume_dimensions " small $ chk $ miget_volume_dimensions volumePtr Minc_Dim_Class_Any Minc_Dim_Attr_All Minc_Dim_Order_File dimensionCount'
+    Right dimensionPtrs <- runAccess "miget_volume_dimensions " small $ chk $ miget_volume_dimensions
+                                                                                volumePtr
+                                                                                Minc_Dim_Class_Any
+                                                                                Minc_Dim_Attr_All
+                                                                                Minc_Dim_Order_File
+                                                                                dimensionCount'
     print dimensionPtrs
 
     Right dimensionSizes <- runAccess "miget_dimension_sizes " small $ chk $ miget_dimension_sizes dimensionPtrs dimensionCount'
     print dimensionSizes
+
+    Right separations <- runAccess "miget_dimension_separations" small $ chk $ miget_dimension_separations
+                                                                                dimensionPtrs
+                                                                                Minc_Voxel_Order_File
+                                                                                dimensionCount'
+    print separations
 
     y <- miclose_volume volumePtr
     print y
