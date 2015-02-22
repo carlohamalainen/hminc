@@ -35,9 +35,21 @@ allocaSeparations = allocaArray mincMaxDims
 peekSeparations :: Ptr CDouble -> IO [CDouble]
 peekSeparations = peekArray mincMaxDims
 
+-- FIXME allocaSeparations and peekSeparations are basically the
+-- same as allocaStarts and peekStarts...
+
+allocaStarts :: (Ptr CDouble -> IO b) -> IO b
+allocaStarts = allocaArray mincMaxDims
+
+peekStarts :: Ptr CDouble -> IO [CDouble]
+peekStarts = peekArray mincMaxDims
+
 -- TODO More here.
 mincMaxDims :: Int
 mincMaxDims = 5
+
+mincMaxDimNameLen :: Int
+mincMaxDimNameLen = 256
 
 type MincIO a = IO (Either MincError a)
 

@@ -72,3 +72,12 @@ extern int miset_slice_scaling_flag(mihandle_t volume,
 --                                 double separations[]);
 {#fun miget_dimension_separations{ withArray* `[Ptr ()]', toCInt `MincVoxelOrder', toCULLong `Int',
                                    allocaSeparations- `[CDouble]' peekSeparations* } -> `Int' #}
+
+
+-- int miget_dimension_starts(const midimhandle_t dimensions[], mivoxel_order_t voxel_order,
+--                            misize_t array_length, double starts[]);
+{#fun miget_dimension_starts{ withArray* `[Ptr ()]', toCInt `MincVoxelOrder', toCULLong `Int',
+                              allocaStarts- `[CDouble]' peekStarts* } -> `Int' #}
+
+-- int miget_dimension_name(midimhandle_t dimension, char **name_ptr);
+{#fun miget_dimension_name{ id `Ptr ()', alloca- `CString' peek*} -> `Int' #}
