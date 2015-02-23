@@ -17,6 +17,9 @@ import Control.Monad (liftM)
 peekIntConv :: (Storable a, Integral a, Integral b) => Ptr a -> IO b
 peekIntConv = liftM fromIntegral . peek
 
+peekMincType :: Ptr CInt -> IO MincType
+peekMincType = liftM (toEnum . fromIntegral) . peek
+
 allocaDims :: (Ptr (Ptr ()) -> IO b) -> IO b
 allocaDims = allocaArray mincMaxDims
 

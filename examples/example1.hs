@@ -54,5 +54,15 @@ main = do
         print $ ("miget_dimension_name", dimIdx, name)
         free z -- FIXME We need to free this ourselves?
 
+    Right mtype <- runAccess "miget_data_type" small $ chk $ miget_data_type volumePtr
+    print $ ("mtype", mtype)
+
+    Right nrBytes <- runAccess "miget_hyperslab_size" small $ chk $ miget_hyperslab_size
+                                                                        mtype
+                                                                        dimensionCount'
+                                                                        (map toCULLong $ take dimensionCount' dimensionSizes)
+    print $ ("nrBytes", nrBytes)
+
+
     y <- miclose_volume volumePtr
     print y

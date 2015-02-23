@@ -12,9 +12,9 @@ data MincType = Minc_Byte           -- ^ 8-bit signed integer
               | Minc_Float          -- ^ 32-bit floating point
               | Minc_Double         -- ^ 64-bit floating point
               | Minc_String         -- ^ ASCII string
-              | Minc_Ubyte          -- ^ 8-bit unsigned integer
-              | Minc_Ushort         -- ^ 16-bit unsigned integer
-              | Minc_Uint           -- ^ 32-bit unsigned integer
+              | Minc_UByte          -- ^ 8-bit unsigned integer
+              | Minc_UShort         -- ^ 16-bit unsigned integer
+              | Minc_UInt           -- ^ 32-bit unsigned integer
               | Minc_SComplex       -- ^ 16-bit signed integer complex
               | Minc_IComplex       -- ^ 32-bit signed integer complex
               | Minc_FComplex       -- ^ 32-bit floating point complex
@@ -72,9 +72,9 @@ instance Enum MincType where
     fromEnum Minc_Float     = 5
     fromEnum Minc_Double    = 6
     fromEnum Minc_String    = 7
-    fromEnum Minc_Ubyte     = 100
-    fromEnum Minc_Ushort    = 101
-    fromEnum Minc_Uint      = 102
+    fromEnum Minc_UByte     = 100
+    fromEnum Minc_UShort    = 101
+    fromEnum Minc_UInt      = 102
     fromEnum Minc_SComplex  = 1000
     fromEnum Minc_IComplex  = 1001
     fromEnum Minc_FComplex  = 1002
@@ -88,9 +88,9 @@ instance Enum MincType where
         5 -> Minc_Float
         6 -> Minc_Double
         7 -> Minc_String
-        100 -> Minc_Ubyte
-        101 -> Minc_Ushort
-        102 -> Minc_Uint
+        100 -> Minc_UByte
+        101 -> Minc_UShort
+        102 -> Minc_UInt
         1000 -> Minc_SComplex
         1001 -> Minc_IComplex
         1002 -> Minc_FComplex
