@@ -1,6 +1,6 @@
 module Main where
 
-import Control.Monad (forM_)
+import Control.Monad (forM_, when)
 
 import Data.Minc
 import Data.Minc.Raw
@@ -11,7 +11,11 @@ import Data.Minc.Types
 import System.IO (IOMode (..))
 
 import Foreign.C.String (peekCString)
-import Foreign.Marshal.Alloc (free)
+import Foreign.Marshal.Alloc (free, mallocBytes)
+import Foreign.Marshal.Array (peekArray)
+import Foreign.Ptr (castPtr, Ptr(..))
+import Foreign.C.Types (CDouble(..))
+import Foreign.Storable (sizeOf)
 
 main :: IO ()
 main = do
@@ -58,11 +62,31 @@ main = do
     print $ ("mtype", mtype)
 
     Right nrBytes <- runAccess "miget_hyperslab_size" small $ chk $ miget_hyperslab_size
-                                                                        mtype
+                                                                        Minc_Double
                                                                         dimensionCount'
-                                                                        (map toCULLong $ take dimensionCount' dimensionSizes)
+                                                                        (take dimensionCount' dimensionSizes)
     print $ ("nrBytes", nrBytes)
 
+    d <- mallocBytes (fromIntegral nrBytes)
+
+    blah <- miget_real_value_hyperslab
+                volumePtr
+                Minc_Double -- we want doubles to be returned
+                [0, 0, 0]
+                (take dimensionCount' dimensionSizes)
+                d
+
+    -- Manual here, we know that it will be a
+    let d_double = castPtr d :: Ptr CDouble
+
+    let nrVoxels = foldl (*) 1 $ take dimensionCount' dimensionSizes
+
+    asArray <- peekArray nrVoxels d_double
+
+    print $ take 40 $ filter (> 0) asArray
+    -- forM_ [0..(nrVoxels - 1)] $ \idx -> when print $ (idx, asArray !! idx)
+
+    free d
 
     y <- miclose_volume volumePtr
     print y

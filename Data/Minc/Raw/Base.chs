@@ -82,18 +82,19 @@ extern int miset_slice_scaling_flag(mihandle_t volume,
 -- int miget_dimension_name(midimhandle_t dimension, char **name_ptr);
 {#fun miget_dimension_name{ id `Ptr ()', alloca- `CString' peek*} -> `Int' #}
 
+-- withArrayInts :: Storable a => [a] -> (Ptr a -> IO b) -> IO b
+withArrayInts x = withArray (map toCULLong x)
+
 -- int miget_real_value_hyperslab(mihandle_t volume,
 --                                mitype_t buffer_data_type,
 --                                const misize_t start[],
 --                                const misize_t count[],
 --                                void *buffer);
---{#fun miget_real_value_hyperslab{ id `Ptr ()',
---                                  toCInt `MincType',
---                                  withArray* `[CULLong]',
---                                  withArray* `[CULLong]',
---                                  alloca- `Ptr ()' } -> `Int' #}
-
-
+{#fun miget_real_value_hyperslab{ id `Ptr ()',
+                                  toCInt `MincType',
+                                  withArrayInts* `[Int]',
+                                  withArrayInts* `[Int]',
+                                  id `Ptr ()' } -> `Int' #}
 
 -- int miget_data_type(mihandle_t vol, mitype_t *volume_data_type);
 {#fun miget_data_type{ id `Ptr ()', alloca- `MincType' peekMincType* } -> `Int' #}
@@ -104,7 +105,7 @@ extern int miset_slice_scaling_flag(mihandle_t volume,
 --                          misize_t *size_ptr);
 {#fun miget_hyperslab_size{ toCInt `MincType',
                             toCInt `Int',
-                            withArray* `[CULLong]',
+                            withArrayInts* `[Int]',
                             alloca- `CULLong' peekIntConv* } -> `Int' #}
 
 
