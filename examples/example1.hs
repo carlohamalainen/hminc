@@ -2,6 +2,14 @@ module Main where
 
 import Control.Monad (forM_, when)
 
+import qualified Data.Array.Repa as R
+import qualified Data.Array.Repa.Eval as RE
+import Data.Array.Repa.Repr.ForeignPtr (fromForeignPtr, F)
+
+import qualified Data.Vector.Unboxed as U
+
+import Data.List (sort)
+
 import Data.Minc
 import Data.Minc.Raw
 import Data.Minc.Raw.Base
@@ -12,10 +20,23 @@ import System.IO (IOMode (..))
 
 import Foreign.C.String (peekCString)
 import Foreign.Marshal.Alloc (free, mallocBytes)
-import Foreign.Marshal.Array (peekArray)
+import Foreign.Marshal.Array
 import Foreign.Ptr (castPtr, Ptr(..))
 import Foreign.C.Types (CDouble(..))
 import Foreign.Storable (sizeOf)
+
+import qualified Foreign.ForeignPtr as FP
+
+import qualified Data.HashSet as HS
+
+import qualified Data.Vector.Generic.Base       as DVB
+import qualified Data.Vector.Generic.Mutable    as DVM
+
+-- instance DVB.Vector U.Vector CDouble where
+
+instance U.Unbox CDouble
+
+type RepaRet3 a = R.Array F R.DIM3 a
 
 main :: IO ()
 main = do
@@ -24,7 +45,10 @@ main = do
     (_, volumePtr) <- miopen_volume small (mincIOMode ReadMode)
     print volumePtr
 
-    dimensionCount <- runAccess "miget_volume_dimension_count " small $ chk $ miget_volume_dimension_count volumePtr Minc_Dim_Class_Any Minc_Dim_Attr_All
+    dimensionCount <- runAccess "miget_volume_dimension_count " small $ chk $ miget_volume_dimension_count
+                                                                                volumePtr
+                                                                                Minc_Dim_Class_Any
+                                                                                Minc_Dim_Attr_All
     print ("dimensionCount", dimensionCount)
 
     let Right dimensionCount' = dimensionCount
@@ -37,7 +61,9 @@ main = do
                                                                                 dimensionCount'
     print $ take dimensionCount' dimensionPtrs
 
-    Right dimensionSizes <- runAccess "miget_dimension_sizes " small $ chk $ miget_dimension_sizes dimensionPtrs dimensionCount'
+    Right dimensionSizes <- runAccess "miget_dimension_sizes " small $ chk $ miget_dimension_sizes
+                                                                                dimensionPtrs
+                                                                                dimensionCount'
     print $ take dimensionCount' dimensionSizes
 
     Right separations <- runAccess "miget_dimension_separations" small $ chk $ miget_dimension_separations
@@ -83,8 +109,23 @@ main = do
 
     asArray <- peekArray nrVoxels d_double
 
+    -- Check a few non-zero values:
     print $ take 40 $ filter (> 0) asArray
-    -- forM_ [0..(nrVoxels - 1)] $ \idx -> when print $ (idx, asArray !! idx)
+
+    -- Find the unique set of non-zero values:
+    let values = sort . HS.toList . HS.fromList . filter (> 0) . map realToFrac $ asArray :: [Double]
+    print ("values", values)
+
+    -- Cast ??? to Repa?
+    fptr <- FP.newForeignPtr_ d_double :: IO (FP.ForeignPtr CDouble)
+
+    let
+        [i, j, k] = take dimensionCount' dimensionSizes
+        repa = fromForeignPtr (R.Z R.:. i R.:. j R.:. k) fptr :: RepaRet3 CDouble
+
+    let sum = R.sumAllP repa
+
+    -- print ("sum", sum)
 
     free d
 
