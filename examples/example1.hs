@@ -4,7 +4,9 @@ import Control.Monad (forM_, when)
 
 import Data.Word
 
-import Data.Array.Repa (computeP, traverse, Z(..), (:.)(..), Array, U, DIM0, DIM1, DIM2, DIM3, (!), sumAllP)
+import Data.Array.Repa (computeP, traverse, Z(..), (:.)(..), Array, U, DIM0, DIM1, DIM2, DIM3, (!), sumAllP, Source(..))
+
+import Data.Array.Repa.Eval (Target(..))
 
 import qualified Data.Array.Repa as R
 import qualified Data.Array.Repa.Eval as RE
@@ -35,10 +37,17 @@ import qualified Data.HashSet as HS
 
 type RepaRet3 a = Array F DIM3 a
 
---   extent :: (Shape sh, Source r e) => Array r sh e -> sh
--- sliceX :: Array 
+-- | Take a slice in the first dimension of a 3D array.
+slice0 :: (Monad m, Source r e, Target r e) => Array r DIM3 e -> Int -> m (Array r DIM2 e)
+slice0 a i = computeP $ traverse a (\(e0 :. e1 :. _) -> (e0 :. e1)) (\f (Z :. j :. k) -> f (Z :. i :. j :. k))
 
-sliceY a j = computeP $ traverse a (\(e0 :. _ :. e2) -> (e0 :. e2)) (\f (Z :. i :. k) -> f (Z :. i :. j :. k))
+-- | Take a slice in the second dimension of a 3D array.
+slice1 :: (Monad m, Source r e, Target r e) => Array r DIM3 e -> Int -> m (Array r DIM2 e)
+slice1 a j = computeP $ traverse a (\(e0 :. _ :. e2) -> (e0 :. e2)) (\f (Z :. i :. k) -> f (Z :. i :. j :. k))
+
+-- | Take a slice in the third dimension of a 3D array.
+slice2 :: (Monad m, Source r e, Target r e) => Array r DIM3 e -> Int -> m (Array r DIM2 e)
+slice2 a k = computeP $ traverse a (\(e0 :. e1 :. _) -> (e0 :. e1)) (\f (Z :. i :. j) -> f (Z :. i :. j :. k))
 
 main :: IO ()
 main = do
@@ -151,9 +160,9 @@ main = do
         -- The change-of-shape function ((\e0 :. _ :. e2) -> ...) has to be right, otherwise we get rubbish.
         -- I had blindly copied the example which had (\(e0 :. _ :. e2) -> (e0 :. e2)) and all the sums below
         -- ended up being zero.
-        slice0 <- computeP $ traverse zzz (\(e0 :. _ :. e2) -> (e0 :. e2)) (\f (Z :. i :. k) -> f (Z :. i :. j :. k)) :: IO (Array U DIM2 Word8)
-        slice0sum <- sumAllP slice0 :: IO Word8
-        print (j, slice0sum)
+        blah <- slice1 zzz j
+        blahSum <- sumAllP blah :: IO Word8
+        print (j, blahSum)
 
     free d
 
