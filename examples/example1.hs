@@ -29,12 +29,14 @@ import qualified Foreign.ForeignPtr as FP
 
 import qualified Data.HashSet as HS
 
-import qualified Data.Vector.Generic.Base       as DVB
-import qualified Data.Vector.Generic.Mutable    as DVM
+import Data.Minc.Boxed
+
+-- import qualified Data.Vector.Generic.Base       as DVB
+-- import qualified Data.Vector.Generic.Mutable    as DVM
 
 -- instance DVB.Vector U.Vector CDouble where
 
-instance U.Unbox CDouble
+-- instance U.Unbox CDouble
 
 type RepaRet3 a = R.Array F R.DIM3 a
 
@@ -123,7 +125,7 @@ main = do
         [i, j, k] = take dimensionCount' dimensionSizes
         repa = fromForeignPtr (R.Z R.:. i R.:. j R.:. k) fptr :: RepaRet3 CDouble
 
-    let sum = R.sumAllP repa
+    -- let sum = R.sumAllP repa
 
     -- print ("sum", sum)
 
