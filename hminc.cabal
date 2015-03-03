@@ -23,7 +23,6 @@ library
   exposed-modules:     Data.Minc
                        Data.Minc.Types
                        Data.Minc.Utils
-                       Data.Minc.Boxed
                        Data.Minc.Raw
                        Data.Minc.Raw.Base
 
@@ -53,6 +52,4 @@ Executable example1
                , unordered-containers
                , repa
                , vector
-               , vector-th-unbox
-               , ghc-prim
   extra-libraries:     minc2

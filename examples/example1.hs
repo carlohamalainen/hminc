@@ -4,6 +4,8 @@ import Control.Monad (forM_, when)
 
 import Data.Word
 
+import Data.Array.Repa (computeP, traverse, Z(..), (:.)(..), Array, U, DIM0, DIM1, DIM2, DIM3, (!), sumAllP)
+
 import qualified Data.Array.Repa as R
 import qualified Data.Array.Repa.Eval as RE
 import Data.Array.Repa.Repr.ForeignPtr (fromForeignPtr, F)
@@ -40,7 +42,7 @@ import Data.Minc.Boxed
 
 -- instance U.Unbox CDouble
 
-type RepaRet3 a = R.Array F R.DIM3 a
+type RepaRet3 a = Array F DIM3 a
 
 main :: IO ()
 main = do
@@ -125,27 +127,37 @@ main = do
 
     let
         [i, j, k] = take dimensionCount' dimensionSizes
-        repa = fromForeignPtr (R.Z R.:. i R.:. j R.:. k) fptr :: RepaRet3 CDouble
+        repa = fromForeignPtr (Z :. i :. j :. k) fptr :: RepaRet3 CDouble
 
     -- Look at a value:
-    print $ repa R.! (R.Z R.:. 0 R.:. 0 R.:. 0)
+    print $ repa ! (Z :. 0 :. 0 :. 0)
 
-    -- I can't get this to work. Type errors. Repa doesn't have instances for various things
-    -- so that CDouble can be 'unboxed'?
-    -- let sum = R.sumAllP repa
-
-    let v0 = realToFrac (values !! 0) :: CDouble
+    let v0 = realToFrac (values !! 21) :: CDouble
+    print ("v0", v0)
 
     let flabert :: CDouble -> Word8
-        flabert x = if x > v0 - (0.05 :: CDouble) && x < v0 + (0.5 :: CDouble) then 1 else 0
+        flabert x = if x > v0 - (0.05 :: CDouble) && x < v0 + (0.05 :: CDouble) then 1 else 0
 
     -- Extract to Word8....
-    zzz <- R.computeP $ R.traverse repa id (\f (R.Z R.:. i R.:. j R.:. k) -> flabert $ f (R.Z R.:. i R.:. j R.:. k)) :: IO (R.Array R.U R.DIM3 Word8)
+    zzz <- computeP $ traverse repa id (\f (Z :. i :. j :. k) -> flabert $ f (Z :. i :. j :. k)) :: IO (Array U DIM3 Word8)
+
+    -- This is probably overflowing!
+    zzzsum <- sumAllP zzz
+    print ("zzzsum", zzzsum)
 
     -- From the tutorial: https://wiki.haskell.org/Numeric_Haskell:_A_Repa_Tutorial#Building_shapes
-    -- Take a slice of one dimension. The resulting shape of the array changes
-    -- ghci> computeP $ traverse x (\(e :. _) -> e) (\f (Z :. i :. j) -> f (Z :. i :. j :. 0)) :: IO (Array U DIM2 Int)
-    -- AUnboxed ((Z :. 3) :. 3) (fromList [1,4,7,10,13,16,19,22,25])
+
+    let nrI = dimensionSizes !! 0
+        nrJ = dimensionSizes !! 1
+        nrK = dimensionSizes !! 2
+
+    forM_ [0..(nrJ - 1)] $ \j -> do
+        -- The change-of-shape function ((\e0 :. _ :. e2) -> ...) has to be right, otherwise we get rubbish.
+        -- I had blindly copied the example which had (\(e0 :. _ :. e2) -> (e0 :. e2)) and all the sums below
+        -- ended up being zero.
+        slice0 <- computeP $ traverse zzz (\(e0 :. _ :. e2) -> (e0 :. e2)) (\f (Z :. i :. k) -> f (Z :. i :. j :. k)) :: IO (Array U DIM2 Word8)
+        slice0sum <- sumAllP slice0 :: IO Word8
+        print (j, slice0sum)
 
     free d
 
