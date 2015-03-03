@@ -2,6 +2,8 @@ module Main where
 
 import Control.Monad (forM_, when)
 
+import Data.Word
+
 import qualified Data.Array.Repa as R
 import qualified Data.Array.Repa.Eval as RE
 import Data.Array.Repa.Repr.ForeignPtr (fromForeignPtr, F)
@@ -125,9 +127,25 @@ main = do
         [i, j, k] = take dimensionCount' dimensionSizes
         repa = fromForeignPtr (R.Z R.:. i R.:. j R.:. k) fptr :: RepaRet3 CDouble
 
+    -- Look at a value:
+    print $ repa R.! (R.Z R.:. 0 R.:. 0 R.:. 0)
+
+    -- I can't get this to work. Type errors. Repa doesn't have instances for various things
+    -- so that CDouble can be 'unboxed'?
     -- let sum = R.sumAllP repa
 
-    -- print ("sum", sum)
+    let v0 = realToFrac (values !! 0) :: CDouble
+
+    let flabert :: CDouble -> Word8
+        flabert x = if x > v0 - (0.05 :: CDouble) && x < v0 + (0.5 :: CDouble) then 1 else 0
+
+    -- Extract to Word8....
+    zzz <- R.computeP $ R.traverse repa id (\f (R.Z R.:. i R.:. j R.:. k) -> flabert $ f (R.Z R.:. i R.:. j R.:. k)) :: IO (R.Array R.U R.DIM3 Word8)
+
+    -- From the tutorial: https://wiki.haskell.org/Numeric_Haskell:_A_Repa_Tutorial#Building_shapes
+    -- Take a slice of one dimension. The resulting shape of the array changes
+    -- ghci> computeP $ traverse x (\(e :. _) -> e) (\f (Z :. i :. j) -> f (Z :. i :. j :. 0)) :: IO (Array U DIM2 Int)
+    -- AUnboxed ((Z :. 3) :. 3) (fromList [1,4,7,10,13,16,19,22,25])
 
     free d
 
