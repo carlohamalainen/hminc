@@ -35,6 +35,11 @@ import qualified Data.HashSet as HS
 
 type RepaRet3 a = Array F DIM3 a
 
+--   extent :: (Shape sh, Source r e) => Array r sh e -> sh
+-- sliceX :: Array 
+
+sliceY a j = computeP $ traverse a (\(e0 :. _ :. e2) -> (e0 :. e2)) (\f (Z :. i :. k) -> f (Z :. i :. j :. k))
+
 main :: IO ()
 main = do
     let small = "/scratch/small.mnc"

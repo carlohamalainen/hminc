@@ -34,8 +34,7 @@ library
                      , unordered-containers
                      , repa
                      , vector
-                     , vector-th-unbox
-                     , ghc-prim
+                     , hminc
   -- hs-source-dirs:
   default-language:    Haskell2010
   ghc-options:         -Wall
