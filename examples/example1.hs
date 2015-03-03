@@ -33,15 +33,6 @@ import qualified Foreign.ForeignPtr as FP
 
 import qualified Data.HashSet as HS
 
-import Data.Minc.Boxed
-
--- import qualified Data.Vector.Generic.Base       as DVB
--- import qualified Data.Vector.Generic.Mutable    as DVM
-
--- instance DVB.Vector U.Vector CDouble where
-
--- instance U.Unbox CDouble
-
 type RepaRet3 a = Array F DIM3 a
 
 main :: IO ()
