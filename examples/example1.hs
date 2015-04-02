@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Applicative ((<$>))
 import Control.Monad (forM_, when)
 
 import Data.Word
@@ -11,6 +12,8 @@ import Data.Array.Repa.Eval (Target(..))
 import qualified Data.Array.Repa as R
 import qualified Data.Array.Repa.Eval as RE
 import Data.Array.Repa.Repr.ForeignPtr (fromForeignPtr, F)
+
+import Data.Array.Repa.IO.DevIL
 
 import qualified Data.Vector.Unboxed as U
 
@@ -34,6 +37,8 @@ import Foreign.Storable (sizeOf)
 import qualified Foreign.ForeignPtr as FP
 
 import qualified Data.HashSet as HS
+
+import Text.Printf (printf)
 
 type RepaRet3 a = Array F DIM3 a
 
@@ -141,7 +146,7 @@ main = do
     print ("v0", v0)
 
     let flabert :: CDouble -> Word8
-        flabert x = if x > v0 - (0.05 :: CDouble) && x < v0 + (0.05 :: CDouble) then 1 else 0
+        flabert x = if x > v0 - (0.05 :: CDouble) && x < v0 + (0.05 :: CDouble) then 255 else 0
 
     -- Extract to Word8....
     zzz <- computeP $ traverse repa id (\f (Z :. i :. j :. k) -> flabert $ f (Z :. i :. j :. k)) :: IO (Array U DIM3 Word8)
@@ -163,6 +168,10 @@ main = do
         blah <- slice1 zzz j
         blahSum <- sumAllP blah :: IO Word8
         print (j, blahSum)
+
+        -- Dump a greyscale image. The slice is a 'U' (Unboxed) but we need an 'F' (foreign) for the Grey function.
+        grey <- Grey <$> RE.copyP blah :: IO Image
+        runIL $ writeImage (printf "grey_%03d.png" j) grey
 
     free d
 
