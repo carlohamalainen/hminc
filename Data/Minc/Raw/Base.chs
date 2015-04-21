@@ -14,15 +14,23 @@ import Control.Monad (liftM)
 
 -- VOLUME FUNCTIONS
 
-{-
-extern int micreate_volume(const char *filename, int number_of_dimensions,
-			   midimhandle_t dimensions[],
-			   mitype_t volume_type,
-			   miclass_t volume_class,
-			   mivolumeprops_t create_props,
-			   mihandle_t *volume);
-extern int micreate_volume_image(mihandle_t volume);
--}
+-- extern int micreate_volume(const char *filename, int number_of_dimensions,
+--                            midimhandle_t dimensions[],
+--                            mitype_t volume_type,
+--                            miclass_t volume_class,
+--                            mivolumeprops_t create_props,
+--                            mihandle_t *volume);
+{#fun micreate_volume{ `String', `Int',
+                       allocaDims- `[Ptr ()]' peekDims*,
+                       toCInt `MincMiType',
+                       toCInt `MincMiClass',
+                       id `Ptr ()',
+                       alloca- `Ptr ()' peek* } -> `Int' #}
+
+-- extern int micreate_volume_image(mihandle_t volume);
+{#fun micreate_volume_image{ id `Ptr ()' } -> `Int' #}
+
+-- FIXME How do we make a mivolumeprops_t?
 
 toCInt :: Enum a => a -> CInt
 toCInt = toEnum . fromEnum
@@ -48,8 +56,11 @@ toCULLong = toEnum . fromEnum
 -- extern int miclose_volume(mihandle_t volume);
 {#fun miclose_volume{ id `Ptr ()' } -> `Int' #}
 
+-- extern int miget_slice_scaling_flag(mihandle_t volume, miboolean_t *slice_scaling_flag);
+-- FIXME Might be nicer to use a Bool marshalling thing instead of a CInt (miboolean_t is just int).
+{#fun miget_slice_scaling_flag{ id `Ptr ()', alloca- `CInt' peek* } -> `Int' #}
+
 {-
-extern int miget_slice_scaling_flag(mihandle_t volume, miboolean_t *slice_scaling_flag);
 extern int miset_slice_scaling_flag(mihandle_t volume,
 				    miboolean_t slice_scaling_flag);
 -}

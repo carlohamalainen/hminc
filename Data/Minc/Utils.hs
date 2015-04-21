@@ -54,11 +54,17 @@ mincMaxDims = 5
 mincMaxDimNameLen :: Int
 mincMaxDimNameLen = 256
 
+-- | Wrapper for IO actions that are calls to Minc library functions.
 type MincIO a = IO (Either MincError a)
 
+-- | Reader environment for running an action with a given name (the 'String')
+-- referring to a file (the 'FilePath'). For example:
+--
+-- > (_, volumePtr) <- miopen_volume "foo.mnc" (mincIOMode ReadMode)
+-- > mtype <- runAccess "miget_data_type" "foo.mnc" $ chk $ miget_data_type volumePtr
 type Access a = ReaderT (String, FilePath) (EitherT MincError IO) a
 
-runAccess :: String -> String -> Access a -> MincIO a
+runAccess :: String -> FilePath -> Access a -> MincIO a
 runAccess f p = runEitherT . flip runReaderT (f, p)
 
 class Checkable a where
@@ -96,6 +102,9 @@ instance Checkable (Int, a, b, c, d, e) where
     status (s, _, _, _, _, _) = s
     proj (_, a, b, c, d, e) = (a, b, c, d, e)
 
+-- | Run an IO action and check the return status. All Minc functions
+-- return @-1@ on error (as opposed to @0@ in NetCDF). This function
+-- and the "Checkable" typeclass is copied directly from hnetcdf.
 chk :: Checkable a => IO a -> Access (OutType a)
 chk act = do
     res <- lift $ liftIO $ act

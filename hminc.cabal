@@ -32,6 +32,7 @@ library
                      , transformers
                      , either
                      , unordered-containers
+                     , containers
                      , repa
                      , repa-devil
                      , vector
@@ -49,6 +50,7 @@ Executable example1
                , transformers
                , either
                , unordered-containers
+               , containers
                , repa
                , repa-devil
                , vector

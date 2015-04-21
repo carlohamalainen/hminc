@@ -1,9 +1,13 @@
+{-# LANGUAGE FlexibleContexts, QuasiQuotes #-}
+
 module Main where
 
 import Control.Applicative ((<$>))
 import Control.Monad (forM_, when)
 
 import Data.Word
+
+import Data.Sequence (iterateN)
 
 import Data.Array.Repa (computeP, traverse, Z(..), (:.)(..), Array, U, DIM0, DIM1, DIM2, DIM3, (!), sumAllP, Source(..))
 
@@ -14,6 +18,9 @@ import qualified Data.Array.Repa.Eval as RE
 import Data.Array.Repa.Repr.ForeignPtr (fromForeignPtr, F)
 
 import Data.Array.Repa.IO.DevIL
+
+import Data.Array.Repa.Stencil
+import Data.Array.Repa.Stencil.Dim2
 
 import qualified Data.Vector.Unboxed as U
 
@@ -53,6 +60,28 @@ slice1 a j = computeP $ traverse a (\(e0 :. _ :. e2) -> (e0 :. e2)) (\f (Z :. i 
 -- | Take a slice in the third dimension of a 3D array.
 slice2 :: (Monad m, Source r e, Target r e) => Array r DIM3 e -> Int -> m (Array r DIM2 e)
 slice2 a k = computeP $ traverse a (\(e0 :. e1 :. _) -> (e0 :. e1)) (\f (Z :. i :. j) -> f (Z :. i :. j :. k))
+
+writeSlice :: Source r Word8 => Array r DIM2 Word8 -> FilePath -> IO ()
+writeSlice a f = do
+    grey <- Grey <$> RE.copyP a :: IO Image
+    runIL $ writeImage f grey
+
+cross4 = [stencil2| 0 1 0
+                    1 1 1
+                    0 1 0 |]
+
+dilate :: Source r Word8 => Array r DIM2 Word8 -> Array PC5 DIM2 Word8
+dilate a = mapStencil2 (BoundConst 0) cross4 a
+
+{-
+dilateN n a =
+    if n > 0
+        then do a' <- dilate a
+                -- a'' <- dilateN (n-1) a'
+                return undefined
+        else return a
+-}
+
 
 main :: IO ()
 main = do
@@ -172,6 +201,15 @@ main = do
         -- Dump a greyscale image. The slice is a 'U' (Unboxed) but we need an 'F' (foreign) for the Grey function.
         grey <- Grey <$> RE.copyP blah :: IO Image
         runIL $ writeImage (printf "grey_%03d.png" j) grey
+
+    -- Try out some stencils.
+    oneSlice <- slice1 zzz 7
+
+    let oneSliceDilated = dilate oneSlice
+        -- oneSliceDilatedAFewTimes = dilateN 20 oneSlice
+
+    oneSliceDilated' <- computeP oneSliceDilated :: IO (Array U DIM2 Word8)
+    -- writeSlice oneSliceDilated' "oneSliceDilated.png"
 
     free d
 
