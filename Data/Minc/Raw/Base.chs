@@ -116,27 +116,30 @@ withArrayInts x = withArray (map toCULLong x)
                             withArrayInts* `[Int]',
                             alloca- `CULLong' peekIntConv* } -> `Int' #}
 
+-- int miget_slice_dimension_count(mihandle_t volume, midimclass_t dimclass,
+--                                 midimattr_t attr, int *number_of_dimensions);
+{#fun miget_slice_dimension_count{ id `Ptr ()', toCInt `MincDimClass',
+                                   toCUInt `MincDimAttribute', alloca- `Int' peekIntConv* } -> `Int' #}
+
+-- /** Create a volume property list.  The new list will be returned in the
+--  * \a props parameter.    When the program is finished
+--  * using the property list it should call  mifree_volume_props() to free the
+--  * memory associated with the list.
+--  * \param props A pointer to the returned volume properties handle.
+--  * \ingroup mi2VPrp
+--  */
+-- int minew_volume_props(mivolumeprops_t *props);
+-- FIXME Automatically handle the call to mifree_volume_props.
+{#fun minew_volume_props{ alloca- `Ptr ()' peek* } -> `Int' #}
+
+-- int mifree_volume_props(mivolumeprops_t props);
+-- FIXME Test
+{#fun mifree_volume_props{ id `Ptr ()' } -> `Int' #}
+
 {-
 
 TODO
 
-int miget_slice_dimension_count(mihandle_t volume, midimclass_t dimclass,
-                                midimattr_t attr, int *number_of_dimensions);
-
-/** Create a volume property list.  The new list will be returned in the
- * \a props parameter.    When the program is finished
- * using the property list it should call  mifree_volume_props() to free the
- * memory associated with the list.
- * \param props A pointer to the returned volume properties handle.
- * \ingroup mi2VPrp
- */
-int minew_volume_props(mivolumeprops_t *props);
-
-/** Destroy a volume property list.
- * \param props The volume property list to delete.
- * \ingroup mi2VPrp
- */
-int mifree_volume_props(mivolumeprops_t props);
 
 /** Get a copy of the volume property list.  When the program is finished
  * using the property list it should call  mifree_volume_props() to free the

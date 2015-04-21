@@ -211,6 +211,17 @@ main = do
     oneSliceDilated' <- computeP oneSliceDilated :: IO (Array U DIM2 Word8)
     -- writeSlice oneSliceDilated' "oneSliceDilated.png"
 
+    -- Volume properties? Need more tests.
+    volProp <- runAccess "minew_volume_props" "(none)" $ chk minew_volume_props
+
+    case volProp of
+        Left err        -> print err
+        Right volProp'  -> do x <- runAccess "mifree_volume_props" "(none)" $ chk $ mifree_volume_props volProp'
+                              print x
+
+    -- {#fun mifree_volume_props{ `()' } -> `Int' #}
+
+
     free d
 
     y <- miclose_volume volumePtr
